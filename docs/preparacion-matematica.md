@@ -61,6 +61,43 @@ Al terminar la Fase I, se debe comprobar que el valor óptimo auxiliar sea cero.
 
 Esta separación permite que el módulo de preparación matemática se integre con el algoritmo de iteraciones y con la API del proyecto sin duplicar sus responsabilidades.
 
+## Contrato de integración con los demás módulos
+
+El módulo de preparación matemática proporciona una función llamada `preparar_modelo`, ubicada en `backend/simplex/preparation.py`.
+
+Esta función recibe una matriz de restricciones previamente convertida a forma estándar, el vector del lado derecho, los nombres de las variables, la base inicial, los coeficientes de la función objetivo y la lista de variables artificiales.
+
+La función devuelve un diccionario con los siguientes campos:
+
+- `variables`: nombres ordenados de las columnas.
+- `base`: variables básicas iniciales.
+- `tableau`: matriz inicial, incluyendo la fila objetivo y el lado derecho.
+- `fase`: número de fase con la que debe comenzar el algoritmo.
+- `artificiales`: variables artificiales que deberán eliminarse.
+- `estado`: descripción de la preparación realizada.
+
+El algoritmo de iteraciones debe utilizar la base y el tableau proporcionados para realizar las operaciones de pivoteo.
+
+Cuando el modelo requiera Fase I, el algoritmo debe resolver primero la función objetivo auxiliar. Si su valor óptimo es cero, se podrá preparar la Fase II después de retirar las variables artificiales. Si el valor óptimo no es cero, el problema original no tiene solución factible.
+
+La API podrá utilizar este contrato para recibir el modelo preparado y enviarlo al módulo de resolución.
+
+## Base inicial, tableau y conexión con las fases del método símplex
+
+La preparación matemática inicia con la conversión de las restricciones a forma estándar. Se normalizan los lados derechos y se incorporan variables de holgura, exceso y artificiales según el tipo de restricción.
+
+Después se construye la base inicial. Esta debe contener una variable básica por cada restricción, y sus columnas deben formar una matriz identidad.
+
+Con la base identificada se genera el tableau inicial, incluyendo los coeficientes de las restricciones, el lado derecho y la fila de la función objetivo expresada mediante la convención Zj − Cj.
+
+**Conexión con la Fase I:** cuando existen variables artificiales, se construye una función objetivo auxiliar que busca minimizar su suma. El módulo entrega el tableau canónico de Fase I al algoritmo encargado de realizar las iteraciones.
+
+**Conexión con la Fase II:** cuando no existen variables artificiales, el problema puede comenzar directamente con la función objetivo original. Si se necesitó Fase I, primero debe comprobarse que el valor óptimo auxiliar sea cero. Después se eliminan las variables artificiales y se reconstruye la fila objetivo original para continuar con Fase II.
+
+**Integración con los demás integrantes:** el módulo `preparation.py` proporciona las variables, la base inicial, el tableau, la fase correspondiente y la identificación de variables artificiales. Estos datos serán utilizados por el módulo de iteraciones y posteriormente por la API del sistema.
+
+La preparación matemática no realiza los pivoteos ni calcula por sí sola la solución óptima. Estas operaciones corresponden al algoritmo de resolución del método símplex.
+
 ## Responsable de la preparación matemática
 
 Desarrollado por: shelsi_11504.
