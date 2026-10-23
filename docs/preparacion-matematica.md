@@ -42,3 +42,9 @@ En esta sección se registrarán los resultados reales obtenidos al ejecutar las
 ## 7. Conclusión
 
 La preparación matemática es una parte importante del sistema porque permite organizar los datos del modelo antes de aplicar las iteraciones del método símplex. Una transformación correcta ayuda a evitar errores en las fases posteriores y facilita la integración con los demás componentes del proyecto.
+
+## Responsable de la preparación matemática
+
+Desarrollado por: shelsi_11504.
+
+Esta parte del proyecto se encarga de preparar el modelo de programación lineal, convertir las restricciones a forma estándar e identificar las variables auxiliares necesarias para las fases del método símplex.
