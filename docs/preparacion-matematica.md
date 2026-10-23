@@ -1,4 +1,4 @@
-# Documentación del módulo de preparación matemática del método símplex
+# Shelsi 11504 - Documentación del módulo de preparación matemática del método símplex
 
 ## 1. Objetivo
 
