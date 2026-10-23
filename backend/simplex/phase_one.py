@@ -11,7 +11,7 @@ La resolución mediante iteraciones y pivoteos corresponde
 al módulo encargado del algoritmo símplex.
 """
 
-from simplex.initial_tableau import construir_tableau
+from .initial_tableau import construir_tableau
 
 
 def preparar_fase_uno(

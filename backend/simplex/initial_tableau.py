@@ -14,6 +14,7 @@ preparando la fila de la función objetivo correspondiente.
 """
 
 from dataclasses import dataclass
+from math import isfinite
 from typing import List
 
 
@@ -69,6 +70,11 @@ def construir_tableau(
 
     if any(len(fila) != n for fila in A):
         raise ValueError("Cada fila debe tener n columnas")
+
+    if not all(isfinite(valor) for fila in A for valor in fila):
+        raise ValueError("La matriz debe contener valores finitos")
+    if not all(isfinite(valor) for valor in b + costos):
+        raise ValueError("El lado derecho y los costos deben ser finitos")
 
     if any(valor < -1e-9 for valor in b):
         raise ValueError("El lado derecho debe ser no negativo")
@@ -133,7 +139,8 @@ def construir_tableau(
 
 def preparar_fase_dos(
     A, b, variables, base, costos,
-    artificiales, objetivo="max", tolerancia=1e-8
+    artificiales, objetivo="max", tolerancia=1e-8,
+    estado_fase_uno="optimal", valor_objetivo_fase_uno=0.0,
 ):
     """
     Transición desde una solución óptima de Fase I.
@@ -141,9 +148,28 @@ def preparar_fase_dos(
     A y b deben representar el tableau de restricciones
     AL FINAL de Fase I, después del pivoteo.
     No acepta directamente el tableau inicial si
-    todavía no se ha resuelto la Fase I.
+    todavía no se ha resuelto la Fase I. También exige
+    que el motor reporte un óptimo factible en Fase I.
     """
+    if not isfinite(float(tolerancia)) or tolerancia <= 0:
+        raise ValueError("La tolerancia debe ser positiva.")
+    if estado_fase_uno != "optimal":
+        raise ValueError("La Fase I debe terminar en estado óptimo.")
+    valor_objetivo_fase_uno = float(valor_objetivo_fase_uno)
+    if not isfinite(valor_objetivo_fase_uno):
+        raise ValueError("El objetivo de Fase I debe ser finito.")
+    if abs(valor_objetivo_fase_uno) > tolerancia:
+        raise ValueError("El modelo es infactible al terminar la Fase I.")
+
     artificiales = set(artificiales)
+    if objetivo not in ("max", "min"):
+        raise ValueError("El objetivo debe ser max o min")
+    if not set(artificiales) <= set(variables):
+        raise ValueError("Variable artificial desconocida")
+    if len(costos) != len(variables):
+        raise ValueError("La cantidad de costos debe coincidir con las variables")
+    if not all(isfinite(float(valor)) for valor in costos):
+        raise ValueError("Los costos deben ser finitos")
 
     if any(v in artificiales for v in base):
         raise ValueError(
@@ -155,6 +181,22 @@ def preparar_fase_dos(
         i for i, v in enumerate(variables)
         if v not in artificiales
     ]
+
+    if not A:
+        if b or base:
+            raise ValueError("Dimensiones incompatibles en la transición a Fase II")
+        nuevas_variables = [variables[i] for i in restantes]
+        nuevos_costos = [float(costos[i]) for i in restantes]
+        signo = 1.0 if objetivo == "max" else -1.0
+        fila_objetivo = [-signo * costo for costo in nuevos_costos] + [0.0]
+        return TableauInicial(
+            variables=nuevas_variables,
+            base=[],
+            matriz=[fila_objetivo],
+            fase=2,
+            artificiales=[],
+            estado="Listo para Fase II",
+        )
 
     nuevas_variables = [variables[i] for i in restantes]
     nueva_A = [
