@@ -25,7 +25,13 @@ Aplicación web para resolver problemas de programación lineal con restriccione
 3. Crear y activar un entorno virtual.
 4. Instalar las dependencias indicadas en `backend/requirements.txt`.
 5. Ejecutar las pruebas.
-6. Iniciar el servidor cuando la API esté integrada.
+6. Iniciar la API y la interfaz con los comandos de la sección siguiente.
+
+## Interfaz web
+
+La interfaz usa React, Vite y componentes de Mantine. Desde `frontend/`, instala las dependencias con `pnpm install` y genera la versión que sirve FastAPI con `pnpm build`. El build publica `frontend/index.html` y `frontend/assets/`, que deben acompañar al backend.
+
+Para desarrollo, inicia la API desde la raíz del repositorio con `uvicorn backend.kevin_9365_api:app --reload --port 8000` y, en otra terminal, ejecuta `pnpm dev` dentro de `frontend/`. Vite entrega la interfaz en el puerto 5173 y envía `/api` al backend del puerto 8000.
 
 ## Estado del desarrollo
-El proyecto se encuentra en desarrollo. Los comandos definitivos de ejecución y los requisitos de la base de datos se documentarán al finalizar la integración.
+El proyecto continúa en desarrollo. Antes del despliegue, el equipo debe verificar las pruebas de integración y la configuración de la base de datos del entorno.
