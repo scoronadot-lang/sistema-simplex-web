@@ -1,3 +1,13 @@
+"""
+Pruebas de la base y del tableau inicial del método símplex.
+
+Responsable: shelsi_11504.
+
+Este archivo contiene las pruebas encargadas de verificar
+que el sistema construya correctamente la base inicial
+y el tableau del problema de programación lineal.
+
+"""
 
 import pytest
 

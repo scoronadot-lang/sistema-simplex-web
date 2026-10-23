@@ -1,3 +1,17 @@
+"""
+Construcción de la base y del tableau inicial del método símplex.
+
+Responsable: shelsi_11504.
+
+Este módulo se encarga de construir la base inicial del
+problema de programación lineal y generar el tableau
+correspondiente a partir de las restricciones previamente
+convertidas a forma estándar.
+
+También identifica si el problema necesita comenzar con
+la Fase I o si puede iniciar directamente con la Fase II,
+preparando la fila de la función objetivo correspondiente.
+"""
 
 from dataclasses import dataclass
 from typing import List
