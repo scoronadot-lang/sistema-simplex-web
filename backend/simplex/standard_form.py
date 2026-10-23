@@ -9,6 +9,7 @@ variables auxiliares necesarias para su resolución.
 """
 
 from dataclasses import dataclass
+from math import isfinite
 from typing import Any
 
 
@@ -18,6 +19,9 @@ class StandardForm:
     rows: list[list[float]]
     rhs: list[float]
     relations_originales: list[str]
+    relations_normalizadas: list[str]
+    rhs_originales: list[float]
+    signos_invertidos: list[bool]
     slack_variables: list[str]
     surplus_variables: list[str]
     artificial_variables: list[str]
@@ -59,6 +63,9 @@ def prepare_standard_form(
     slack = []
     surplus = []
     artificial = []
+    relations_normalizadas = []
+    rhs_originales = []
+    signos_invertidos = []
 
     # Normalizar los datos y asignar variables auxiliares.
     for index, constraint in enumerate(constraints, start=1):
@@ -94,6 +101,13 @@ def prepare_standard_form(
 
         coefficients = [float(value) for value in coefficients]
         rhs = float(rhs)
+        if not all(isfinite(value) for value in coefficients) or not isfinite(rhs):
+            raise ValueError(
+                f"Restricción {index}: los valores deben ser finitos."
+            )
+
+        rhs_original = rhs
+        signo_invertido = rhs < 0
 
         # Un RHS negativo requiere multiplicar toda la
         # restricción por -1 e invertir el sentido.
@@ -105,6 +119,10 @@ def prepare_standard_form(
                 ">=": "<=",
                 "=": "="
             }[relation]
+
+        relations_normalizadas.append(relation)
+        rhs_originales.append(rhs_original)
+        signos_invertidos.append(signo_invertido)
 
         row_aux = {}
 
@@ -161,6 +179,9 @@ def prepare_standard_form(
         relations_originales=[
             item for item in [c["relation"] for c in constraints]
         ],
+        relations_normalizadas=relations_normalizadas,
+        rhs_originales=rhs_originales,
+        signos_invertidos=signos_invertidos,
         slack_variables=slack,
         surplus_variables=surplus,
         artificial_variables=artificial,
