@@ -156,7 +156,7 @@ function ModelEditor({ draft, setDraft, onSolve, busy, errors, onDemo, onClear }
     {errors.length > 0 && <Alert color="red" title="Revisa estos campos">{errors.slice(0, 5).map((error, i) => <Text key={i} size="sm">• {error}</Text>)}{errors.length > 5 && <Text size="sm">y {errors.length - 5} campos más.</Text>}</Alert>}
     <Card className="surface-card" withBorder>
       <Group align="end" grow wrap="wrap">
-        <TextInput label="Nombre del modelo" placeholder="Ej. Plan de producción" value={draft.nombre} maxLength={120} error={errors.some(item => item.includes('nombre')) ? 'Escribe un nombre.' : null} onChange={event => update(m => ({ ...m, nombre: event.currentTarget.value }))} />
+        <TextInput label="Nombre del modelo" placeholder="Ej. Plan de producción" value={draft.nombre} maxLength={120} error={errors.some(item => item.includes('nombre')) ? 'Escribe un nombre.' : null} onChange={event => { const nombre = event.currentTarget.value; update(m => ({ ...m, nombre })); }} />
         <Select label="Variables de decisión" value={String(n)} data={Array.from({ length: 5 }, (_, i) => ({ value: String(i + 2), label: `${i + 2} variables (${letters.slice(0, i + 2).split('').join(', ')})` }))} onChange={changeVarCount} allowDeselect={false} />
       </Group>
       <Divider my="lg" label="Función objetivo" labelPosition="left" />
