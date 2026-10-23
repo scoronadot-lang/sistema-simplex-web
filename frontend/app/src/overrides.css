@@ -1,2 +1,19 @@
 fieldset.form-fieldset{border:0;padding:0;margin:0;min-width:0}
 .leaving-row>th,.leaving-row>td{background:rgba(131,82,225,.12);color:#d2bcff}
+
+/* Ajuste moderado de legibilidad para controles y textos auxiliares. */
+.mantine-Text-root:not([data-size]){font-size:15px}
+.mantine-Text-root[data-size="sm"]{font-size:15px}
+.mantine-Text-root[data-size="xs"]{font-size:13px}
+.mantine-InputWrapper-label,.mantine-InputWrapper-error,.mantine-InputWrapper-description{font-size:14px}
+.mantine-Input-input,.mantine-Select-input{font-size:15px;min-height:40px}
+.mantine-Button-root{font-size:15px;min-height:40px;padding-inline:16px}
+.sidebar .mantine-Button-root{min-height:46px}
+.mantine-Badge-root{font-size:13px;min-height:24px}
+.brand-caption{font-size:9px}
+.row-number,.nav-status{font-size:13px}
+.timeline-step span{font-size:13px}
+.timeline-step small{font-size:11px}
+.operation-line{font-size:13px}
+.mantine-SegmentedControl-label{font-size:15px;min-height:38px;padding-inline:18px}
+@media(max-width:767px){.api-state{font-size:10px}}
