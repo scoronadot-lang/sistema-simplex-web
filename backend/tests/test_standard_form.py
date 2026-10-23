@@ -1,3 +1,9 @@
+"""
+Pruebas de la preparación matemática del método símplex.
+
+Responsable: shelsi_11504.
+"""
+
 
 import pytest
 
