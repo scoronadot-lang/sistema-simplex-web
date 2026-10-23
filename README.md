@@ -1,4 +1,4 @@
-# Shelsi 11504 - Sistema web para resolver programación lineal mediante el método símplex
+# Sistema web para resolver programación lineal mediante el método símplex
 
 ## Descripción
 Aplicación web para resolver problemas de programación lineal con restricciones, permitiendo maximizar o minimizar una función objetivo y visualizar las tablas del método símplex paso a paso.
