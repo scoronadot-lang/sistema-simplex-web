@@ -1,3 +1,12 @@
+"""
+Preparación matemática del método símplex.
+
+Responsable: shelsi_11504.
+
+Este módulo transforma un problema de programación lineal
+a forma estándar, normaliza restricciones y prepara las
+variables auxiliares necesarias para su resolución.
+"""
 
 from dataclasses import dataclass
 from typing import Any

@@ -1,3 +1,17 @@
+"""
+Pruebas de la conversión a forma estándar del método símplex.
+
+Responsable: shelsi_11504.
+
+Este archivo contiene las pruebas utilizadas para verificar
+que las restricciones de programación lineal se conviertan
+correctamente a forma estándar.
+
+Se comprueba la incorporación de variables de holgura,
+exceso y artificiales, así como la normalización del lado
+derecho y la validación de los datos ingresados.
+"""
+
 
 import pytest
 
