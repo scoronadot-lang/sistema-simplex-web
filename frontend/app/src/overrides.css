@@ -1,4 +1,7 @@
+/* Ambos (Alex y Dulce): Ajustes compartidos que completan el tema y los controles visuales del frontend. */
+/* Dulce: Normaliza el contenedor fieldset del formulario de captura. */
 fieldset.form-fieldset{border:0;padding:0;margin:0;min-width:0}
+/* Alex: Resalta la fila que sale de la base durante la explicación de un pivote. */
 .leaving-row>th,.leaving-row>td{background:rgba(131,82,225,.12);color:#d2bcff}
 
 /* Ajuste moderado de legibilidad para controles y textos auxiliares. */
@@ -16,4 +19,5 @@ fieldset.form-fieldset{border:0;padding:0;margin:0;min-width:0}
 .timeline-step small{font-size:11px}
 .operation-line{font-size:13px}
 .mantine-SegmentedControl-label{font-size:15px;min-height:38px;padding-inline:18px}
+/* Ambos: Ajusta el indicador de conexión en pantallas pequeñas. */
 @media(max-width:767px){.api-state{font-size:10px}}

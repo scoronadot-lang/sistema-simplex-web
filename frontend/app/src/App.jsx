@@ -1,3 +1,4 @@
+// Ambos: Importa React, Mantine y Tabler para el formulario y las vistas. El cliente api es de Kevin y aquí solo se consume.
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import {
   ActionIcon, Alert, AppShell, Badge, Box, Burger, Button, Card, Divider,
@@ -13,7 +14,9 @@ import {
 } from '@tabler/icons-react';
 import { api } from '../../js/kevin_9365_api.js';
 
+// Dulce: Letras que identifican las variables y sus coeficientes en el formulario.
 const letters = 'abcdef';
+// Ambos: Define las secciones de navegación y los textos que comparten las distintas vistas.
 const navItems = [
   { id: 'modelo', label: 'Modelo', icon: IconMathFunction },
   { id: 'preparacion', label: 'Preparación', icon: IconSettings },
@@ -33,10 +36,12 @@ const statusDescriptions = {
   numerical_error: 'El motor detectó una inconsistencia numérica; no se muestra un óptimo.',
 };
 
+// Dulce: Crea el borrador vacío que el formulario usa al iniciar o limpiar un modelo.
 const blankModel = (n = 3) => ({
   nombre: '', sentido: 'max', objetivo: Array(n).fill(''),
   restricciones: [{ coeficientes: Array(n).fill(''), signo: '<=', rhs: '' }],
 });
+// Ambos: Datos del ejemplo que Dulce ofrece desde el formulario y Alex puede resolver en las vistas.
 const demoModel = {
   nombre: 'Ejemplo · maximización', sentido: 'max', objetivo: ['5', '4', '3'],
   restricciones: [
@@ -46,15 +51,18 @@ const demoModel = {
   ],
 };
 
+// Dulce: Convierte una entrada del formulario a número; devuelve null si está vacía o no es válida.
 function numeric(value) {
   if (value === '' || value === null || value === undefined) return null;
   const parsed = Number(String(value).trim().replace(',', '.'));
   return Number.isFinite(parsed) ? parsed : null;
 }
+// Ambos: Formatea números para mostrarlos con locale es-GT, sin modificar los valores calculados.
 function numberText(value, digits = 4) {
   if (value === null || value === undefined || !Number.isFinite(Number(value))) return '—';
   return new Intl.NumberFormat('es-GT', { maximumFractionDigits: digits }).format(Number(value));
 }
+// Dulce: Convierte el borrador del formulario al formato numérico que recibe la API.
 function readModel(draft) {
   return {
     nombre: draft.nombre.trim() || 'Sin título', sentido: draft.sentido,
@@ -64,6 +72,7 @@ function readModel(draft) {
     })),
   };
 }
+// Dulce: Reúne errores de campos requeridos y límites del modelo antes de enviarlo a resolver.
 function validate(draft) {
   const errors = [];
   if (!draft.nombre.trim()) errors.push('Escribe un nombre para el modelo.');
@@ -80,6 +89,7 @@ function validate(draft) {
   if (draft.restricciones.length > 40) errors.push('El máximo permitido es 40 restricciones.');
   return errors;
 }
+// Ambos: Reconstruye el borrador editable a partir de un modelo recuperado del historial.
 function hydrateModel(model) {
   const n = model?.objetivo?.length || 3;
   return {
@@ -91,6 +101,7 @@ function hydrateModel(model) {
     })),
   };
 }
+// Alex: Convierte coeficientes, relación y lado derecho en una ecuación legible para Preparación y Resultados.
 function prettyEquation(coefficients, names, relation, rhs) {
   const terms = coefficients.flatMap((coefficient, i) => {
     if (Math.abs(Number(coefficient)) < 1e-10) return [];
@@ -101,6 +112,7 @@ function prettyEquation(coefficients, names, relation, rhs) {
   return `${left} ${relation} ${numberText(rhs, 6)}`;
 }
 
+// Alex: Dibuja una tabla simplex y puede resaltar la celda pivote que viene de la iteración anterior.
 function Tableau({ table, highlight = null }) {
   if (!table?.valores?.length) return <Alert color="gray">No hay una tabla disponible.</Alert>;
   const columns = table.columnas || [];
@@ -127,6 +139,7 @@ function Tableau({ table, highlight = null }) {
   );
 }
 
+// Alex: Resume el modelo original para que pueda compararse con la preparación y el resultado.
 function ModelCard({ model }) {
   const vars = letters.slice(0, model.objetivo.length).split('');
   const objective = model.objetivo.map((value, i) => `${i ? (value < 0 ? ' − ' : ' + ') : value < 0 ? '−' : ''}${numberText(Math.abs(value), 6)}${vars[i]}`).join('');
@@ -139,6 +152,7 @@ function ModelCard({ model }) {
   </Card>;
 }
 
+// Dulce: Captura y edita el nombre, objetivo, variables y restricciones; también muestra errores y acciones del formulario.
 function ModelEditor({ draft, setDraft, onSolve, busy, errors, onDemo, onClear }) {
   const n = draft.objetivo.length;
   const vars = letters.slice(0, n).split('');
@@ -182,6 +196,7 @@ function ModelEditor({ draft, setDraft, onSolve, busy, errors, onDemo, onClear }
   </Stack></fieldset>;
 }
 
+// Alex: Presenta la forma estándar, la base inicial y el tableau calculados antes del procedimiento.
 function PreparationView({ payload, result, onContinue }) {
   const prep = result.preparacion || {};
   const names = prep.variables || [];
@@ -208,13 +223,16 @@ function PreparationView({ payload, result, onContinue }) {
   </Stack>;
 }
 
+// Ambos: Encabezado reutilizable que da contexto y estado a las secciones del espacio de trabajo.
 function ViewHeading({ eyebrow, title, description, badge }) {
   return <Group justify="space-between" align="end" wrap="wrap"><div><Badge color="cyan" variant="light">{eyebrow}</Badge><Title order={2} mt="xs">{title}</Title><Text c="dimmed" mt={4}>{description}</Text></div>{badge && <Badge size="lg" variant="gradient" gradient={{ from: 'cyan', to: 'indigo', deg: 110 }}>{badge}</Badge>}</Group>;
 }
+// Ambos: Tarjeta pequeña reutilizable para resumir estados y valores.
 function StatCard({ label, value }) {
   return <Card className="stat-card" withBorder><Text size="xs" c="dimmed" tt="uppercase">{label}</Text><Text fw={650} mt={5} className="stat-value">{value}</Text></Card>;
 }
 
+// Alex: Permite recorrer las iteraciones, revisar el pivote y leer razones y operaciones del motor.
 function ProcedureView({ result, index, setIndex, onResult }) {
   const tables = result.tablas || [];
   const current = tables[index];
@@ -245,6 +263,7 @@ function ProcedureView({ result, index, setIndex, onResult }) {
   </Stack>;
 }
 
+// Alex: Presenta el estado, solución óptima y comprobación; permite guardar el cálculo en el historial.
 function ResultView({ payload, result, recordId, persisted, onSave, busy }) {
   const optimal = result.estado === 'optimal';
   return <Stack gap="lg">
@@ -263,6 +282,7 @@ function ResultView({ payload, result, recordId, persisted, onSave, busy }) {
   </Stack>;
 }
 
+// Alex: Busca y muestra modelos guardados; permite abrirlos, duplicarlos y pedir su eliminación a la API.
 function HistoryView({ onOpen, onDuplicate, onDelete, busy, request, historyKey, setHistoryKey }) {
   const [query, setQuery] = useState('');
   const [sense, setSense] = useState('');
@@ -300,7 +320,9 @@ function HistoryView({ onOpen, onDuplicate, onDelete, busy, request, historyKey,
   </Stack>;
 }
 
+// Ambos: Integra el formulario de Dulce con las vistas de Alex, la navegación y el estado global de la aplicación.
 function App() {
+  // Ambos: Conserva el borrador, el resultado, la vista activa, la iteración y los estados de carga/errores.
   const [mobileOpen, setMobileOpen] = useState(false);
   const [view, setView] = useState('modelo');
   const [draft, setDraftRaw] = useState(() => blankModel());
@@ -312,20 +334,29 @@ function App() {
   const [formErrors, setFormErrors] = useState([]);
   const [busy, setBusy] = useState(false);
   const [health, setHealth] = useState(null);
+  // Alex: Conserva la clave opcional del historial durante la sesión del navegador.
   const [historyKey, setHistoryKeyRaw] = useState(() => sessionStorage.getItem('simplex-history-key') || '');
+  // Alex: Añade la clave de historial a las solicitudes enviadas por el cliente API de Kevin.
   const request = useCallback((path, method = 'GET', body, options = {}) => api(path, method, body, { historyKey, ...options }), [historyKey]);
   const setHistoryKey = useCallback(value => { sessionStorage.setItem('simplex-history-key', value); setHistoryKeyRaw(value); }, []);
+  // Alex: Habilita las vistas de cálculo solo cuando el resultado está vigente; Modelo e Historial siempre están disponibles.
   const allowed = useMemo(() => new Set(['modelo', 'historial', ...(solved && !solved.stale ? ['preparacion', 'procedimiento', 'resultado'] : [])]), [solved]);
+  // Ambos: Al editar entradas, devuelve al formulario y marca desactualizado cualquier resultado previo.
   const setDraft = useCallback(updater => {
     setDraftRaw(current => typeof updater === 'function' ? updater(current) : updater);
     setFormErrors([]);
     setSolved(current => current ? { ...current, stale: true } : current);
     setView('modelo');
   }, []);
+  // Alex: Consulta la salud del backend para mostrar el estado de conexión en la interfaz.
   useEffect(() => { request('/health').then(setHealth).catch(e => setHealth({ status: 'error', detail: e.message })); }, [request]);
+  // Ambos: Limpia el espacio de trabajo y vuelve a Modelo; no elimina registros persistidos.
   function newModel() { setDraftRaw(blankModel()); setSolved(null); setRecordId(null); setPersisted(false); setTableIndex(0); setError(''); setFormErrors([]); setView('modelo'); }
+  // Ambos: Carga el modelo de ejemplo como borrador, listo para que el usuario lo resuelva.
   function loadExample() { setDraft(demoModel); setRecordId(null); setPersisted(false); setError(''); }
+  // Alex: Cambia a una sección habilitada, cierra el menú móvil y limpia el error general.
   function navigate(id) { if (allowed.has(id)) { setView(id); setMobileOpen(false); setError(''); } }
+  // Ambos: Valida la captura, la convierte al formato de API y solicita el cálculo; Alex abre Preparación al recibirlo.
   async function solve() {
     const issues = validate(draft); setFormErrors(issues); setError('');
     if (issues.length) return;
@@ -337,6 +368,7 @@ function App() {
     } catch (e) { setError(e.message); }
     finally { setBusy(false); }
   }
+  // Alex: Crea o actualiza el modelo y pide a la API guardar su resultado calculado en el historial.
   async function save() {
     if (!solved || solved.stale) return;
     setBusy(true); setError('');
@@ -349,6 +381,7 @@ function App() {
     } catch (e) { setError(`No se pudo guardar el resultado. ${e.message}`); }
     finally { setBusy(false); }
   }
+  // Ambos: Recupera un registro del historial y restaura su modelo en el formulario y su resultado en las vistas de Alex.
   async function openRecord(id) {
     setBusy(true); setError('');
     try {
@@ -360,28 +393,35 @@ function App() {
     } catch (e) { setError(e.message); }
     finally { setBusy(false); }
   }
+  // Alex: Solicita a la API una copia del registro y abre el nuevo elemento del historial.
   async function duplicateRecord(id) {
     setBusy(true); setError('');
     try { const copy = await request(`/modelos/${encodeURIComponent(id)}/duplicar`, 'POST'); await openRecord(copy.id); }
     catch (e) { setError(e.message); }
     finally { setBusy(false); }
   }
+  // Alex: Solicita eliminar un registro y limpia su identidad local si era el modelo abierto.
   async function deleteRecord(id) {
     setBusy(true); setError('');
     try { await request(`/modelos/${encodeURIComponent(id)}`, 'DELETE'); if (recordId === id) { setRecordId(null); setPersisted(false); } return true; }
     catch (e) { setError(e.message); return false; }
     finally { setBusy(false); }
   }
+  // Alex: Obtiene el nombre de la sección actual para el encabezado.
   const activeTitle = navItems.find(item => item.id === view)?.label || 'Modelo';
+  // Ambos: Define el marco visual común, el encabezado, el menú lateral y el área adaptable de contenido.
   return <AppShell header={{ height: 72 }} navbar={{ width: 254, breakpoint: 'sm', collapsed: { mobile: !mobileOpen } }} padding={{ base: 'md', md: 'xl' }}>
+    {/* Ambos: Muestra la marca; el menú hamburguesa aparece en pantallas pequeñas. */}
     <AppShell.Header className="topbar"><Group h="100%" px={{ base: 'md', md: 'xl' }} justify="space-between">
       <Group gap="sm"><Burger hiddenFrom="sm" opened={mobileOpen} onClick={() => setMobileOpen(open => !open)} size="sm" aria-label="Abrir navegación" /><div className="brand-mark"><IconBrain size={22} /></div><div><Text className="brand-name">SIMPLEX<span>LAB</span></Text><Text className="brand-caption">OPTIMIZACIÓN LINEAL</Text></div></Group>
       <Group gap="sm"><Badge className="api-state" color={health?.status === 'ok' ? 'teal' : health ? 'red' : 'gray'} variant="light" leftSection={<span className="status-dot" />}>{health?.status === 'ok' ? `API ${health.database || 'activa'} · motor ${health.motor || 'activo'}` : health ? 'API no disponible' : 'Conectando'}</Badge>{solved && !solved.stale && <Button size="xs" variant="light" leftSection={<IconDeviceFloppy size={15} />} onClick={save} loading={busy} disabled={persisted}>Guardar</Button>}</Group>
     </Group></AppShell.Header>
+    {/* Alex: Organiza la navegación por las pantallas y deshabilita las que no tienen un cálculo vigente. */}
     <AppShell.Navbar className="sidebar" p="md"><Stack gap={5}>
       <Text size="xs" c="dimmed" tt="uppercase" fw={700} px="sm" mb="xs">Espacio de trabajo</Text>
       {navItems.map(({ id, label, icon: Icon }) => <Button key={id} variant={view === id ? 'light' : 'subtle'} color={view === id ? 'cyan' : 'gray'} justify="start" leftSection={<Icon size={18} stroke={1.7} />} disabled={!allowed.has(id)} onClick={() => navigate(id)}>{label}{id === 'resultado' && solved && <span className="nav-status">{statusLabels[solved.result.estado]}</span>}</Button>)}
     </Stack><div className="sidebar-bottom"><Divider mb="md" /><Group gap="xs"><div className="pulse-ring" /><Text size="xs" c="dimmed">{health?.status === 'ok' ? 'Conexión lista' : health ? 'Revisa el servidor API' : 'Comprobando servicios'}</Text></Group><Text size="xs" c="dimmed" mt={5}>Método símplex de dos fases</Text></div></AppShell.Navbar>
+    {/* Ambos: Muestra la vista seleccionada; cada componente pertenece al módulo indicado en su comentario. */}
     <AppShell.Main className="main-area"><div className="page-head"><div><Text size="xs" c="cyan.3" tt="uppercase" fw={700} className="overline">LABORATORIO DE OPERACIONES</Text><Text size="sm" c="dimmed">{activeTitle} / Sistema Simplex</Text></div>{solved && <Badge variant="outline" color={solved.stale ? 'yellow' : 'cyan'}>{solved.stale ? 'Resultado anterior · requiere recalcular' : statusLabels[solved.result.estado]}</Badge>}</div>
       {error && <Alert className="global-alert" color="red" title="No se completó la operación" withCloseButton onClose={() => setError('')}>{error}</Alert>}
       {view === 'modelo' && <ModelEditor draft={draft} setDraft={setDraft} onSolve={solve} busy={busy} errors={formErrors} onDemo={loadExample} onClear={newModel} />}
@@ -394,4 +434,5 @@ function App() {
   </AppShell>;
 }
 
+// Ambos: Exporta el espacio de trabajo para que main.jsx lo monte en el navegador.
 export default App;
